@@ -20,5 +20,4 @@ resource "docker_container" "nodered_container" {
     internal = 1880
     external = 1880
   }
-
 }
