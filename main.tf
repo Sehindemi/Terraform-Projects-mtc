@@ -23,8 +23,8 @@ resource "docker_container" "nodered_container" {
 }
 
 output "IP-Address" {
-  value = docker_container.nodered_container.memory
-  description = "The IP address of the container"
+  value = join(":", [docker_container.nodered_container.network_data[0].ip_address, docker_container.nodered_container.ports[0].external])
+  description = "The IP address and external ports of the container"
 }
 
 output "container-name" {
