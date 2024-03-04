@@ -12,17 +12,28 @@ provider "docker" {}
 variable "ext_port" {
   type    = number
   default = 1880
+  
+  validation {
+    condition = var.ext_port <= 65535 && var.ext_port > 0
+    error_message = "The External port must be netween the valid port range of 0 - 65535." 
+  }
 }
 
 variable "int_port" {
   type    = number
   default = 1880
+  
+  validation {
+    condition = var.int_port == 1880
+    error_message = "The internal port must be 1880"
+  }
 }
 
 variable "container_count" {
   type    = number
-  default = 2
+  default = 1
 }
+
 resource "docker_image" "nodered_image" {
   name = "nodered/node-red:latest"
 }
@@ -37,7 +48,7 @@ resource "docker_container" "nodered_container" {
   count = var.container_count
   name  = join("-", ["nodered", random_string.random[count.index].result])
   image = docker_image.nodered_image.image_id
-  ports {
+  ports  {
     internal = var.int_port
     external = var.ext_port
   }
@@ -53,4 +64,3 @@ output "container-name" {
   value       = docker_container.nodered_container[*].name
   description = "The name of the container"
 }
-
