@@ -9,29 +9,10 @@ terraform {
 
 provider "docker" {}
 
-variable "ext_port" {
-  type    = number
-  default = 1880
-  
-  validation {
-    condition = var.ext_port <= 65535 && var.ext_port > 0
-    error_message = "The External port must be netween the valid port range of 0 - 65535." 
+resource "null_resource" "dockervol" {
+  provisioner "local-exec" {
+    command = "mkdir noderedvol/ || true && sudo chown -R 1000:1000 noderedvol"
   }
-}
-
-variable "int_port" {
-  type    = number
-  default = 1880
-  
-  validation {
-    condition = var.int_port == 1880
-    error_message = "The internal port must be 1880"
-  }
-}
-
-variable "container_count" {
-  type    = number
-  default = 1
 }
 
 resource "docker_image" "nodered_image" {
@@ -52,15 +33,8 @@ resource "docker_container" "nodered_container" {
     internal = var.int_port
     external = var.ext_port
   }
-}
-
-
-output "ip_address" {
-  value       = [for i in docker_container.nodered_container[*] : join(":", [i.network_data[0]["ip_address"], i.ports[0]["external"]])]
-  description = "The IP address and external ports of the container"
-}
-
-output "container-name" {
-  value       = docker_container.nodered_container[*].name
-  description = "The name of the container"
+  volumes {
+    container_path = "/data"
+    host_path = "/home/ubuntu/environment/terraform-docker/noderedvol"
+  }
 }
