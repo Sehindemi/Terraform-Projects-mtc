@@ -1,3 +1,3 @@
-variable "image_in"{
-    description = "name of image"
+variable "image_in" {
+  description = "name of image"
 }
